@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const parcelleSchema = new mongoose.Schema({
   exploitationId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  idParcelle:  { type: String, required: true, unique: true, match: /^P\d{2}$/ },
+  idParcelle:  { type: String, required: true, match: /^P\d{2}$/ },
   nom:         { type: String, required: true, trim: true },
   surface_ha:  { type: Number, required: true, min: 0.01 },
   type_sol:    { type: String, enum: ['Argilo-limoneux','Sableux','Argileux','Limoneux','Autre'], required: true },
@@ -18,7 +18,7 @@ const parcelleSchema = new mongoose.Schema({
   campagne: { type: String, default: '2025-2026' },
 }, { timestamps: true });
 
-// Index géospatial pour la carte Leaflet
+parcelleSchema.index({ exploitationId: 1, idParcelle: 1 }, { unique: true });
 parcelleSchema.index({ 'gps.lat': 1, 'gps.lng': 1 });
 
 module.exports = mongoose.model('Parcelle', parcelleSchema);
