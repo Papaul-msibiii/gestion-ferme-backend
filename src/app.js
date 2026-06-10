@@ -16,8 +16,8 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/v1/auth',       require('./routes/auth.routes'));
 app.use('/api/v1/parcelles',  require('./routes/parcelle.routes'));
-// app.use('/api/v1/intrants',   require('./routes/intrant.routes'));
-// app.use('/api/v1/activites',  require('./routes/activite.routes'));
+app.use('/api/v1/intrants',   require('./routes/intrant.routes'));
+app.use('/api/v1/activites',  require('./routes/activite.routes'));
 // app.use('/api/v1/rendements', require('./routes/rendement.routes'));
 // app.use('/api/v1/stocks',     require('./routes/stock.routes'));
 // app.use('/api/v1/budget',     require('./routes/budget.routes'));

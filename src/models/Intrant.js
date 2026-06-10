@@ -30,14 +30,13 @@ const intrantSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Calcul automatique avant sauvegarde
-intrantSchema.pre('save', function(next) {
+intrantSchema.pre('save', async function() {
   this.cout_total = this.quantite * this.prix_unitaire;
   if (this.date_traitement && this.dar_jours) {
     const d = new Date(this.date_traitement);
     d.setDate(d.getDate() + this.dar_jours);
     this.date_recolte_ok = d;
   }
-  next();
 });
 
 module.exports = mongoose.model('Intrant', intrantSchema);
