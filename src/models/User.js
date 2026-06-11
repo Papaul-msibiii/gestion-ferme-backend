@@ -8,7 +8,9 @@ const userSchema = new mongoose.Schema({
   exploitation: { type: String, default: 'Mon exploitation' },
   region:      { type: String, default: 'Saloum' },
   role:        { type: String, enum: ['agriculteur','consultant','admin'], default: 'agriculteur' },
-  actif:       { type: Boolean, default: true },
+  actif:            { type: Boolean, default: true },
+  resetToken:       { type: String, select: false },
+  resetTokenExpiry: { type: Date,   select: false },
 }, { timestamps: true });
 
 // Hash password avant sauvegarde (Mongoose 9 : pas de callback next avec async)
