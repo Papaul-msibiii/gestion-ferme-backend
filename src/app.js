@@ -25,9 +25,10 @@ app.use('/api/v1/gantt',      require('./routes/gantt.routes'));
 app.use('/api/v1/meteo',      require('./routes/meteo.routes'));
 app.use('/api/v1/rentabilite', require('./routes/rentabilite.routes'));
 app.use('/api/v1/rapport',    require('./routes/rapport.routes'));
+app.use('/api/v1/org',        require('./routes/organization.routes'));
 
 // Health check
-app.get('/api/health', (req, res) => res.json({ status: 'ok', app: 'GESTION FERME API' }));
+app.get('/api/health', (req, res) => res.json({ status: 'ok', app: 'Tool Djolof API v2' }));
 
 // 404
 app.use((req, res) => res.status(404).json({ message: 'Route introuvable' }));
