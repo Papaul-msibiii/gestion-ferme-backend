@@ -2,7 +2,7 @@ const Intrant = require('../models/Intrant');
 
 exports.getAll = async (req, res, next) => {
   try {
-    const filter = { exploitationId: req.user.id };
+    const filter = { ...req.orgFilter };
     if (req.query.parcelle_id) filter.parcelle_id = req.query.parcelle_id;
     if (req.query.type)        filter.type        = req.query.type;
     if (req.query.campagne)    filter.campagne     = req.query.campagne;
@@ -24,7 +24,7 @@ exports.getAll = async (req, res, next) => {
 
 exports.getOne = async (req, res, next) => {
   try {
-    const i = await Intrant.findOne({ _id: req.params.id, exploitationId: req.user.id })
+    const i = await Intrant.findOne({ _id: req.params.id, ...req.orgFilter })
       .populate({ path: 'parcelle_id', select: 'idParcelle nom' });
     if (!i) return res.status(404).json({ success: false, message: 'Intrant introuvable' });
     res.json({ success: true, data: i });
@@ -33,7 +33,7 @@ exports.getOne = async (req, res, next) => {
 
 exports.create = async (req, res, next) => {
   try {
-    const intrant = await Intrant.create({ ...req.body, exploitationId: req.user.id });
+    const intrant = await Intrant.create({ ...req.body, ...req.orgFilter });
     await intrant.populate({ path: 'parcelle_id', select: 'idParcelle nom' });
     res.status(201).json({ success: true, data: intrant });
   } catch (err) { next(err); }
@@ -41,7 +41,7 @@ exports.create = async (req, res, next) => {
 
 exports.update = async (req, res, next) => {
   try {
-    const { exploitationId, ...safeBody } = req.body;
+    const { organizationId, ...safeBody } = req.body;
     if (safeBody.quantite != null && safeBody.prix_unitaire != null) {
       safeBody.cout_total = Number(safeBody.quantite) * Number(safeBody.prix_unitaire);
     }
@@ -51,7 +51,7 @@ exports.update = async (req, res, next) => {
       safeBody.date_recolte_ok = d;
     }
     const intrant = await Intrant.findOneAndUpdate(
-      { _id: req.params.id, exploitationId: req.user.id },
+      { _id: req.params.id, ...req.orgFilter },
       safeBody,
       { new: true, runValidators: true }
     ).populate({ path: 'parcelle_id', select: 'idParcelle nom' });
@@ -63,7 +63,7 @@ exports.update = async (req, res, next) => {
 
 exports.remove = async (req, res, next) => {
   try {
-    const i = await Intrant.findOneAndDelete({ _id: req.params.id, exploitationId: req.user.id });
+    const i = await Intrant.findOneAndDelete({ _id: req.params.id, ...req.orgFilter });
     if (!i) return res.status(404).json({ success: false, message: 'Intrant introuvable' });
     res.json({ success: true, message: 'Intrant supprimé' });
   } catch (err) { next(err); }

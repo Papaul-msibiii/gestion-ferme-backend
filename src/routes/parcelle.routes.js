@@ -1,10 +1,13 @@
 const router = require('express').Router();
-const ctrl = require('../controllers/parcelle.controller');
-const { protect } = require('../middlewares/auth.middleware');
+const ctrl   = require('../controllers/parcelle.controller');
+const { protect, authorize, injectOrgFilter } = require('../middlewares/auth.middleware');
 
-router.use(protect); // toutes les routes protégées par JWT
+router.use(protect, injectOrgFilter);
 
-router.route('/').get(ctrl.getAll).post(ctrl.create);
-router.route('/:id').get(ctrl.getOne).put(ctrl.update).delete(ctrl.remove);
+router.get('/',    authorize('platform_admin','org_admin','manager','worker'), ctrl.getAll);
+router.post('/',   authorize('org_admin','manager'), ctrl.create);
+router.get('/:id', authorize('platform_admin','org_admin','manager','worker'), ctrl.getOne);
+router.put('/:id', authorize('org_admin','manager'), ctrl.update);
+router.delete('/:id', authorize('org_admin','manager'), ctrl.remove);
 
 module.exports = router;

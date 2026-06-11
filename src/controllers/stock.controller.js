@@ -26,7 +26,7 @@ async function enrichStock(stock) {
 /* GET /stocks */
 exports.getAll = async (req, res, next) => {
   try {
-    const stocks = await Stock.find({ exploitationId: req.user.id }).sort({ categorie: 1, produit: 1 });
+    const stocks = await Stock.find({ ...req.orgFilter }).sort({ categorie: 1, produit: 1 });
     const enriched = await Promise.all(stocks.map(enrichStock));
     const alertes  = enriched.filter((s) => s.statut === 'ALERTE' || s.statut === 'RUPTURE').length;
     res.json({ success: true, count: enriched.length, alertes, data: enriched });
@@ -36,7 +36,7 @@ exports.getAll = async (req, res, next) => {
 /* GET /stocks/:id */
 exports.getOne = async (req, res, next) => {
   try {
-    const stock = await Stock.findOne({ _id: req.params.id, exploitationId: req.user.id });
+    const stock = await Stock.findOne({ _id: req.params.id, ...req.orgFilter });
     if (!stock) return res.status(404).json({ success: false, message: 'Stock introuvable' });
     const enriched = await enrichStock(stock);
     res.json({ success: true, data: enriched });
@@ -46,7 +46,7 @@ exports.getOne = async (req, res, next) => {
 /* POST /stocks */
 exports.create = async (req, res, next) => {
   try {
-    const stock = await Stock.create({ ...req.body, exploitationId: req.user.id });
+    const stock = await Stock.create({ ...req.body, ...req.orgFilter });
     const enriched = await enrichStock(stock);
     res.status(201).json({ success: true, data: enriched });
   } catch (err) { next(err); }
@@ -55,9 +55,9 @@ exports.create = async (req, res, next) => {
 /* PUT /stocks/:id */
 exports.update = async (req, res, next) => {
   try {
-    const { exploitationId, ...safeBody } = req.body;
+    const { organizationId, ...safeBody } = req.body;
     const stock = await Stock.findOneAndUpdate(
-      { _id: req.params.id, exploitationId: req.user.id },
+      { _id: req.params.id, ...req.orgFilter },
       safeBody, { new: true, runValidators: true },
     );
     if (!stock) return res.status(404).json({ success: false, message: 'Stock introuvable' });
@@ -69,7 +69,7 @@ exports.update = async (req, res, next) => {
 /* DELETE /stocks/:id */
 exports.remove = async (req, res, next) => {
   try {
-    const stock = await Stock.findOneAndDelete({ _id: req.params.id, exploitationId: req.user.id });
+    const stock = await Stock.findOneAndDelete({ _id: req.params.id, ...req.orgFilter });
     if (!stock) return res.status(404).json({ success: false, message: 'Stock introuvable' });
     await MouvementStock.deleteMany({ stock_id: req.params.id });
     res.json({ success: true, data: null });
@@ -81,7 +81,7 @@ exports.remove = async (req, res, next) => {
 /* GET /stocks/:id/mouvements */
 exports.getMouvements = async (req, res, next) => {
   try {
-    const stock = await Stock.findOne({ _id: req.params.id, exploitationId: req.user.id });
+    const stock = await Stock.findOne({ _id: req.params.id, ...req.orgFilter });
     if (!stock) return res.status(404).json({ success: false, message: 'Stock introuvable' });
     const mouvements = await MouvementStock.find({ stock_id: req.params.id })
       .populate({ path: 'parcelle_id', select: 'idParcelle nom' })
@@ -93,7 +93,7 @@ exports.getMouvements = async (req, res, next) => {
 /* POST /stocks/:id/mouvements */
 exports.addMouvement = async (req, res, next) => {
   try {
-    const stock = await Stock.findOne({ _id: req.params.id, exploitationId: req.user.id });
+    const stock = await Stock.findOne({ _id: req.params.id, ...req.orgFilter });
     if (!stock) return res.status(404).json({ success: false, message: 'Stock introuvable' });
     const mouvement = await MouvementStock.create({ ...req.body, stock_id: req.params.id });
     await mouvement.populate({ path: 'parcelle_id', select: 'idParcelle nom' });
@@ -107,7 +107,7 @@ exports.deleteMouvement = async (req, res, next) => {
   try {
     const mouvement = await MouvementStock.findById(req.params.mid);
     if (!mouvement) return res.status(404).json({ success: false, message: 'Mouvement introuvable' });
-    const stock = await Stock.findOne({ _id: mouvement.stock_id, exploitationId: req.user.id });
+    const stock = await Stock.findOne({ _id: mouvement.stock_id, ...req.orgFilter });
     if (!stock) return res.status(403).json({ success: false, message: 'Accès refusé' });
     await mouvement.deleteOne();
     res.json({ success: true, data: null });

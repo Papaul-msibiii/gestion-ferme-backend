@@ -7,9 +7,9 @@ const LigneBudget = require('../models/LigneBudget');
 exports.get = async (req, res, next) => {
   try {
     const { campagne } = req.query;
-    const eId = req.user.id;
+    
 
-    const base    = { exploitationId: eId };
+    const base    = { ...req.orgFilter };
     const withCmp = campagne ? { ...base, campagne } : base;
 
     /* ── Données sources ── */

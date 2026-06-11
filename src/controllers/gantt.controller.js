@@ -20,7 +20,7 @@ function computeStats(taches) {
 exports.getAll = async (req, res, next) => {
   try {
     const { campagne } = req.query;
-    const filter = { exploitationId: req.user.id };
+    const filter = { ...req.orgFilter };
     if (campagne) filter.campagne = campagne;
 
     const taches = await TacheGantt.find(filter)
@@ -34,7 +34,7 @@ exports.getAll = async (req, res, next) => {
 /* POST /gantt */
 exports.create = async (req, res, next) => {
   try {
-    const tache = await TacheGantt.create({ ...req.body, exploitationId: req.user.id });
+    const tache = await TacheGantt.create({ ...req.body, ...req.orgFilter });
     await tache.populate({ path: 'parcelle_id', select: 'idParcelle nom' });
     res.status(201).json({ success: true, data: tache });
   } catch (err) { next(err); }
@@ -43,9 +43,9 @@ exports.create = async (req, res, next) => {
 /* PUT /gantt/:id */
 exports.update = async (req, res, next) => {
   try {
-    const { exploitationId, ...safeBody } = req.body;
+    const { organizationId, ...safeBody } = req.body;
     const tache = await TacheGantt.findOneAndUpdate(
-      { _id: req.params.id, exploitationId: req.user.id },
+      { _id: req.params.id, ...req.orgFilter },
       safeBody, { new: true, runValidators: true },
     ).populate({ path: 'parcelle_id', select: 'idParcelle nom' });
     if (!tache) return res.status(404).json({ success: false, message: 'Tâche introuvable' });
@@ -56,7 +56,7 @@ exports.update = async (req, res, next) => {
 /* DELETE /gantt/:id */
 exports.remove = async (req, res, next) => {
   try {
-    const tache = await TacheGantt.findOneAndDelete({ _id: req.params.id, exploitationId: req.user.id });
+    const tache = await TacheGantt.findOneAndDelete({ _id: req.params.id, ...req.orgFilter });
     if (!tache) return res.status(404).json({ success: false, message: 'Tâche introuvable' });
     res.json({ success: true, data: null });
   } catch (err) { next(err); }

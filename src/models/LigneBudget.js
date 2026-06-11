@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const ligneBudgetSchema = new mongoose.Schema({
-  exploitationId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  organizationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', required: true },
   campagne:       { type: String, required: true, default: '2025-2026' },
   parcelle_id:    { type: mongoose.Schema.Types.ObjectId, ref: 'Parcelle' },
   poste:          { type: String, required: true, trim: true },

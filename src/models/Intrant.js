@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const intrantSchema = new mongoose.Schema({
-  exploitationId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  organizationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', required: true },
   parcelle_id:    { type: mongoose.Schema.Types.ObjectId, ref: 'Parcelle', required: true },
   type:           { type: String, enum: ['Semence','Engrais','Phytosanitaire'], required: true },
   produit:        { type: String, required: true },

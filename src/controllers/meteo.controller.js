@@ -26,7 +26,7 @@ function computeStats(semaines) {
 /* GET /meteo */
 exports.getAll = async (req, res, next) => {
   try {
-    const semaines = await Meteo.find({ exploitationId: req.user.id }).sort({ semaine: -1 });
+    const semaines = await Meteo.find({ ...req.orgFilter }).sort({ semaine: -1 });
     res.json({ success: true, count: semaines.length, stats: computeStats(semaines), data: semaines });
   } catch (err) { next(err); }
 };
@@ -35,7 +35,7 @@ exports.getAll = async (req, res, next) => {
 exports.create = async (req, res, next) => {
   try {
     const lundi = toLundi(req.body.semaine);
-    const entry = await Meteo.create({ ...req.body, semaine: lundi, exploitationId: req.user.id });
+    const entry = await Meteo.create({ ...req.body, semaine: lundi, ...req.orgFilter });
     res.status(201).json({ success: true, data: entry });
   } catch (err) {
     if (err.code === 11000) {
@@ -48,10 +48,10 @@ exports.create = async (req, res, next) => {
 /* PUT /meteo/:id */
 exports.update = async (req, res, next) => {
   try {
-    const { exploitationId, ...safeBody } = req.body;
+    const { organizationId, ...safeBody } = req.body;
     if (safeBody.semaine) safeBody.semaine = toLundi(safeBody.semaine);
     const entry = await Meteo.findOneAndUpdate(
-      { _id: req.params.id, exploitationId: req.user.id },
+      { _id: req.params.id, ...req.orgFilter },
       safeBody, { new: true, runValidators: true },
     );
     if (!entry) return res.status(404).json({ success: false, message: 'Entrée introuvable' });
@@ -62,7 +62,7 @@ exports.update = async (req, res, next) => {
 /* DELETE /meteo/:id */
 exports.remove = async (req, res, next) => {
   try {
-    const entry = await Meteo.findOneAndDelete({ _id: req.params.id, exploitationId: req.user.id });
+    const entry = await Meteo.findOneAndDelete({ _id: req.params.id, ...req.orgFilter });
     if (!entry) return res.status(404).json({ success: false, message: 'Entrée introuvable' });
     res.json({ success: true, data: null });
   } catch (err) { next(err); }

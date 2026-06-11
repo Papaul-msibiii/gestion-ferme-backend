@@ -1,4 +1,4 @@
-const User           = require('../models/User');
+const Organization   = require('../models/Organization');
 const Parcelle       = require('../models/Parcelle');
 const Intrant        = require('../models/Intrant');
 const Activite       = require('../models/Activite');
@@ -13,8 +13,7 @@ const TacheGantt     = require('../models/TacheGantt');
 exports.get = async (req, res, next) => {
   try {
     const { campagne } = req.query;
-    const eId     = req.user.id;
-    const base    = { exploitationId: eId };
+    const base    = { ...req.orgFilter };
     const withCmp = campagne ? { ...base, campagne } : base;
 
     /* ── Filtre dates Météo selon la campagne (ex: "2025-2026" → entre 01/2025 et 12/2026) ── */
@@ -32,16 +31,16 @@ exports.get = async (req, res, next) => {
     }
 
     /* ── Requêtes parallèles ── */
-    const [user, parcelles, intrants, activites, rendements, stocks, budgetLignes, meteos, taches] =
+    const [org, parcelles, intrants, activites, rendements, stocks, budgetLignes, meteos, taches] =
       await Promise.all([
-        User.findById(eId).select('nom exploitation region email'),
+        Organization.findById(req.user.organizationId).select('nom region'),
         Parcelle.find(withCmp).sort({ idParcelle: 1 }),
         Intrant.find(withCmp),
         Activite.find(withCmp),
         Rendement.find(withCmp).populate({ path: 'parcelle_id', select: 'idParcelle nom' }),
-        Stock.find(base),                              // pas de campagne sur le modèle Stock
+        Stock.find(base),
         LigneBudget.find(withCmp),
-        Meteo.find(meteoFilter).sort({ semaine: -1 }), // filtré par année de campagne
+        Meteo.find(meteoFilter).sort({ semaine: -1 }),
         TacheGantt.find(withCmp),
       ]);
 
@@ -123,11 +122,11 @@ exports.get = async (req, res, next) => {
       success:    true,
       genereLe:   new Date().toISOString(),
       campagne:   campagne ?? '—',
-      exploitation: {
-        nom:         user.nom,
-        exploitation: user.exploitation,
-        region:      user.region,
-        email:       user.email,
+      organisation: {
+        nom:    org?.nom    ?? req.user.nom,
+        region: org?.region ?? '—',
+        responsable: req.user.nom,
+        email:       req.user.email,
       },
       parcelles: {
         count: parcelles.length, surfaceTotale, cultures,

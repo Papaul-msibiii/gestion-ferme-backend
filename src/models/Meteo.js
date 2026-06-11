@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const meteoSchema = new mongoose.Schema({
-  exploitationId:       { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  organizationId:       { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', required: true },
   semaine:              { type: Date, required: true },   // date du lundi de la semaine
   pluie_mm:             { type: Number, required: true, min: 0, default: 0 },
   temp_max_c:           { type: Number },
@@ -12,7 +12,7 @@ const meteoSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Unicité : une seule entrée par semaine par exploitation
-meteoSchema.index({ exploitationId: 1, semaine: 1 }, { unique: true });
+meteoSchema.index({ organizationId: 1, semaine: 1 }, { unique: true });
 
 // Virtual déficit hydrique
 meteoSchema.virtual('deficit_hydrique').get(function () {

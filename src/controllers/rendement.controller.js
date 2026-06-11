@@ -4,7 +4,7 @@ const POPULATE = { path: 'parcelle_id', select: 'idParcelle nom' };
 
 exports.getAll = async (req, res, next) => {
   try {
-    const filter = { exploitationId: req.user.id };
+    const filter = { ...req.orgFilter };
     if (req.query.campagne) filter.campagne = req.query.campagne;
 
     const rendements = await Rendement.find(filter)
@@ -40,7 +40,7 @@ exports.getAll = async (req, res, next) => {
 
 exports.getOne = async (req, res, next) => {
   try {
-    const r = await Rendement.findOne({ _id: req.params.id, exploitationId: req.user.id })
+    const r = await Rendement.findOne({ _id: req.params.id, ...req.orgFilter })
       .populate(POPULATE);
     if (!r) return res.status(404).json({ success: false, message: 'Rendement introuvable' });
     res.json({ success: true, data: r });
@@ -49,7 +49,7 @@ exports.getOne = async (req, res, next) => {
 
 exports.create = async (req, res, next) => {
   try {
-    const body = { ...req.body, exploitationId: req.user.id };
+    const body = { ...req.body, ...req.orgFilter };
     if (body.rdt_reel_t_ha != null) {
       body.production_t = Number(body.surface_ha) * Number(body.rdt_reel_t_ha);
       body.ca_total     = body.production_t * Number(body.prix_vente_fcfa_kg) * 1000;
@@ -62,13 +62,13 @@ exports.create = async (req, res, next) => {
 
 exports.update = async (req, res, next) => {
   try {
-    const { exploitationId, ...safeBody } = req.body;
+    const { organizationId, ...safeBody } = req.body;
     if (safeBody.rdt_reel_t_ha != null) {
       safeBody.production_t = Number(safeBody.surface_ha) * Number(safeBody.rdt_reel_t_ha);
       safeBody.ca_total     = safeBody.production_t * Number(safeBody.prix_vente_fcfa_kg) * 1000;
     }
     const rendement = await Rendement.findOneAndUpdate(
-      { _id: req.params.id, exploitationId: req.user.id },
+      { _id: req.params.id, ...req.orgFilter },
       safeBody,
       { new: true, runValidators: true },
     ).populate(POPULATE);
@@ -79,7 +79,7 @@ exports.update = async (req, res, next) => {
 
 exports.remove = async (req, res, next) => {
   try {
-    const r = await Rendement.findOneAndDelete({ _id: req.params.id, exploitationId: req.user.id });
+    const r = await Rendement.findOneAndDelete({ _id: req.params.id, ...req.orgFilter });
     if (!r) return res.status(404).json({ success: false, message: 'Rendement introuvable' });
     res.json({ success: true, message: 'Rendement supprimé' });
   } catch (err) { next(err); }

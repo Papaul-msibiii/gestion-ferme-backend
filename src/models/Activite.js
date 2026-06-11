@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const activiteSchema = new mongoose.Schema({
-  exploitationId:   { type: mongoose.Schema.Types.ObjectId, ref: 'User',     required: true },
+  organizationId:   { type: mongoose.Schema.Types.ObjectId, ref: 'Organization',     required: true },
   parcelle_id:      { type: mongoose.Schema.Types.ObjectId, ref: 'Parcelle', required: true },
   date:             { type: Date, required: true },
   type_activite:    {
@@ -28,6 +28,6 @@ activiteSchema.pre('save', async function () {
   this.cout_mo = this.duree_heures * this.nb_ouvriers * this.taux_horaire_fcfa;
 });
 
-activiteSchema.index({ exploitationId: 1, date: -1 });
+activiteSchema.index({ organizationId: 1, date: -1 });
 
 module.exports = mongoose.model('Activite', activiteSchema);

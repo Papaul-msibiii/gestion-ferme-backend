@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const rendementSchema = new mongoose.Schema({
-  exploitationId:     { type: mongoose.Schema.Types.ObjectId, ref: 'User',     required: true },
+  organizationId:     { type: mongoose.Schema.Types.ObjectId, ref: 'Organization',     required: true },
   parcelle_id:        { type: mongoose.Schema.Types.ObjectId, ref: 'Parcelle', required: true },
   culture:            { type: String, required: true },
   surface_ha:         { type: Number, required: true, min: 0.01 },
@@ -21,6 +21,6 @@ rendementSchema.pre('save', async function () {
   }
 });
 
-rendementSchema.index({ exploitationId: 1, campagne: 1 });
+rendementSchema.index({ organizationId: 1, campagne: 1 });
 
 module.exports = mongoose.model('Rendement', rendementSchema);

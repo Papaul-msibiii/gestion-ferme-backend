@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const stockSchema = new mongoose.Schema({
-  exploitationId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  organizationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', required: true },
   produit:        { type: String, required: true },
   categorie:      { type: String, enum: ['Semence','Engrais','Phyto','Récolte'], required: true },
   unite:          { type: String, required: true },

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const parcelleSchema = new mongoose.Schema({
-  exploitationId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  organizationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', required: true },
   idParcelle:  { type: String, required: true, match: /^P\d{2}$/ },
   nom:         { type: String, required: true, trim: true },
   surface_ha:  { type: Number, required: true, min: 0.01 },
@@ -18,7 +18,7 @@ const parcelleSchema = new mongoose.Schema({
   campagne: { type: String, default: '2025-2026' },
 }, { timestamps: true });
 
-parcelleSchema.index({ exploitationId: 1, idParcelle: 1 }, { unique: true });
+parcelleSchema.index({ organizationId: 1, idParcelle: 1 }, { unique: true });
 parcelleSchema.index({ 'gps.lat': 1, 'gps.lng': 1 });
 
 module.exports = mongoose.model('Parcelle', parcelleSchema);
