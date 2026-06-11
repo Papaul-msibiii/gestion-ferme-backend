@@ -23,6 +23,7 @@ app.use('/api/v1/stocks',     require('./routes/stock.routes'));
 app.use('/api/v1/budget',     require('./routes/budget.routes'));
 app.use('/api/v1/gantt',      require('./routes/gantt.routes'));
 app.use('/api/v1/meteo',      require('./routes/meteo.routes'));
+app.use('/api/v1/rentabilite', require('./routes/rentabilite.routes'));
 // app.use('/api/v1/rapport',    require('./routes/rapport.routes'));
 
 // Health check
